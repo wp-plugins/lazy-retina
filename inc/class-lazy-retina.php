@@ -14,7 +14,8 @@ final class Lazy_Retina {
 		self::$instance = $this;
 	
 		/* Go home */
-		if ( is_admin() OR is_feed() ) {
+		/* Thanks to Sergej Müller */
+		if ( is_admin() OR is_feed() OR (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) OR (defined('DOING_CRON') && DOING_CRON) OR (defined('DOING_AJAX') && DOING_AJAX) OR (defined('XMLRPC_REQUEST') && XMLRPC_REQUEST)) {
 			return;
 		}
 
@@ -223,7 +224,7 @@ final class Lazy_Retina {
 */
 function lazy_retina_image( $image_id, $size = 'thumbnail', $attr = array()) {
 	if (!empty($image_id)) {
-		return Lazy_Retina::$instance->update_thumbnail(wp_get_attachment_image($image_id), null, $image_id, $size, $attr);
+		return Lazy_Retina::$instance->update_thumbnail(wp_get_attachment_image($image_id, $size), null, $image_id, $size, $attr);
 	}
 }
 
