@@ -15,14 +15,14 @@ final class Lazy_Retina {
 	
 		/* Go home */
 		/* Thanks to Sergej Müller */
-		if ( is_admin() OR is_feed() OR (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) OR (defined('DOING_CRON') && DOING_CRON) OR (defined('DOING_AJAX') && DOING_AJAX) OR (defined('XMLRPC_REQUEST') && XMLRPC_REQUEST)) {
+		if ( is_feed() OR is_admin() OR (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) OR (defined('DOING_CRON') && DOING_CRON) OR (defined('DOING_AJAX') && DOING_AJAX) OR (defined('XMLRPC_REQUEST') && XMLRPC_REQUEST) ) {
 			return;
 		}
 
-		add_action( 'init', array( $this, 'add_new_sizes' ), 999 );
+		add_action( 'init', array( $this, 'add_new_sizes' ) );
 		add_action( 'wp_footer', array( $this, 'load_unveil' ) );
-		add_filter( 'the_content', array( $this, 'update_images' ) , 999);
-		add_filter( 'post_thumbnail_html', array( $this, 'update_thumbnail' ), 999, 5 );
+		add_filter( 'the_content', array( $this, 'update_images' ) );
+		add_filter( 'post_thumbnail_html', array( $this, 'update_images' ) );
 	}
 	
 	/*
@@ -87,12 +87,12 @@ final class Lazy_Retina {
 	*
 	* @since 0.1
 	*/	
-	function update_images( $content ) {
+	function update_images( $content ) {		
 		if (in_array('no_link', get_option('lazy_retina_options'))) 
 			$content = $this->attachment_image_link_remove ($content);
 		
 		/* no images avaible? */
-		if ( !wp_script_is('jquery', 'done') || strpos($content, '-image') === false ) return $content;
+		if ( strpos($content, '-image') === false ) return $content;
 		
 		preg_match_all("#<img(.*?)\/?>#", $content, $old_img);
 		
@@ -122,13 +122,11 @@ final class Lazy_Retina {
 	}
 	
 	/*
-	* Create retina lazy image for thumbnails
+	* Override an image for lazy load
 	*
 	* @since 0.1
 	*/
-	function update_thumbnail( $html, $post_id, $post_thumbnail_id, $size, $extra_attr ) {
-		if ( !wp_script_is('jquery', 'done') ) return $html;
-		
+	function override_image( $html, $post_thumbnail_id, $size, $extra_attr ) {
 		$attr = $this->_get_image_attributes($html);
 		$attr = array_merge($attr, $extra_attr);
 		
@@ -144,7 +142,7 @@ final class Lazy_Retina {
 	}
 	
 	/*
-	* Load unveil.js if jQuery or Zepto is load
+	* Create finished output image
 	*
 	* @since 0.1
 	*/
@@ -224,7 +222,7 @@ final class Lazy_Retina {
 */
 function lazy_retina_image( $image_id, $size = 'thumbnail', $attr = array()) {
 	if (!empty($image_id)) {
-		return Lazy_Retina::$instance->update_thumbnail(wp_get_attachment_image($image_id, $size), null, $image_id, $size, $attr);
+		return Lazy_Retina::$instance->override_image(wp_get_attachment_image($image_id, $size), $image_id, $size, $attr);
 	}
 }
 
