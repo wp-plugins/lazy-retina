@@ -7,11 +7,13 @@ final class Lazy_Retina {
 	/*
 	* Register the hook-functions
 	*
-	* @since 0.1
+	* @since 1.0
 	*/
 	public function __construct() {	
 		// save himself in instance variable
 		self::$instance = $this;
+		
+		add_action( 'after_setup_theme', array( $this, 'add_new_sizes' ), 999 );
 	
 		/* Go home */
 		/* Thanks to Sergej Müller */
@@ -19,16 +21,15 @@ final class Lazy_Retina {
 			return;
 		}
 
-		add_action( 'init', array( $this, 'add_new_sizes' ) );
 		add_action( 'wp_footer', array( $this, 'load_unveil' ) );
 		add_filter( 'the_content', array( $this, 'update_images' ) );
-		add_filter( 'post_thumbnail_html', array( $this, 'update_images' ) );
+		add_filter( 'post_thumbnail_html', array( $this, 'update_images' ), 999, 5 );
 	}
 	
 	/*
 	* Install hook: Register all options.
 	*
-	* @since 0.1
+	* @since 1.0
 	*/ 
 	public static function install() {
 		add_option('lazy_retina_options', array('image_link'=>'link'), '', 'yes');
@@ -37,7 +38,7 @@ final class Lazy_Retina {
 	/*
 	* Remove hook: Delete all options.
 	*
-	* @since 0.1
+	* @since 1.0
 	*/
 	public static function remove() {
 		delete_option('lazy_retina_options');	
@@ -46,7 +47,7 @@ final class Lazy_Retina {
 	/*
 	* Create an instance
 	*
-	* @since 0.1
+	* @since 1.0
 	*/
 	public static function create_instance()
 	{
@@ -56,7 +57,7 @@ final class Lazy_Retina {
 	/*
 	* Add new image size for retina devices
 	*
-	* @since 0.1
+	* @since 1.0
 	*/
 	function add_new_sizes() {
 		$image_sizes = get_intermediate_image_sizes();
@@ -75,7 +76,7 @@ final class Lazy_Retina {
 	/*
 	* Check if image size exist
 	*
-	* @since 0.1
+	* @since 1.0
 	*/
 	private function _get_image_size( $name ) {
 		global $_wp_additional_image_sizes;
@@ -85,7 +86,7 @@ final class Lazy_Retina {
 	/*
 	* Replace images with retina lazy-versions
 	*
-	* @since 0.1
+	* @since 1.0
 	*/	
 	function update_images( $content ) {		
 		if (in_array('no_link', get_option('lazy_retina_options'))) 
@@ -124,7 +125,7 @@ final class Lazy_Retina {
 	/*
 	* Override an image for lazy load
 	*
-	* @since 0.1
+	* @since 1.0
 	*/
 	function override_image( $html, $post_thumbnail_id, $size, $extra_attr ) {
 		$attr = $this->_get_image_attributes($html);
@@ -144,7 +145,8 @@ final class Lazy_Retina {
 	/*
 	* Create finished output image
 	*
-	* @since 0.1
+	* @since 1.0
+	* @change 1.1
 	*/
 	private function create_image($image_id, $retina_size, $old_img, $attr) {
 		/* Empty .gif */
@@ -155,7 +157,8 @@ final class Lazy_Retina {
 		// replace attr
 		$attr['class'] .= ' lazy_retina';
 		$attr['src'] = $null;
-		if ($retina_img && $retina_img[3]) $attr['data-src-retina'] = $retina_img[0];
+		// Nicht nur cropped!
+		if ($retina_img !== false) $attr['data-src-retina'] = $retina_img[0];
 		
 		// form the image
 		$image 	 = "<img";
@@ -169,7 +172,7 @@ final class Lazy_Retina {
 	/*
 	* Return an array of attributes of given string
 	*
-	* @since 0.1
+	* @since 1.0
 	*/
 	private function _get_image_attributes($attributes) {
 		preg_match_all( "#(\w+)=['\"]{1}([^'\"]*)#", $attributes, $each_attr );
@@ -181,7 +184,7 @@ final class Lazy_Retina {
 	/*
 	* Load unveil.js if jQuery or Zepto is load
 	*
-	* @since 0.1
+	* @since 1.0
 	*/
 	function load_unveil() {
 		global $wp_scripts;
@@ -195,7 +198,7 @@ final class Lazy_Retina {
 	/*
 	* Remove default link from adding image setup
 	*
-	* @since 0.1
+	* @since 1.0
 	*/
 	function imagelink_setup() {
 		$image_set = get_option( 'image_default_link_type' );
@@ -206,7 +209,7 @@ final class Lazy_Retina {
 	* Remove default link from images
 	* @author Joe Foley
 	*
-	* @since 0.1
+	* @since 1.0
 	*/
 	function attachment_image_link_remove( $content ) {
 		 $content = preg_replace(array('{<a(.*?)(wp-att|wp-content/uploads)[^>]*><img}','{ wp-image-[0-9]*" /></a>}'),array('<img','" />'),$content);
@@ -218,7 +221,7 @@ final class Lazy_Retina {
 /*
 * Return a lazy-retina image for an image id
 *
-* @since 0.1
+* @since 1.0
 */
 function lazy_retina_image( $image_id, $size = 'thumbnail', $attr = array()) {
 	if (!empty($image_id)) {

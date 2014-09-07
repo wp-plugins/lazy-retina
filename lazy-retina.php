@@ -5,7 +5,7 @@ Description: Add retina sizes to Wordpress and lazy load images with unveil.js.
 Author: Finn Dohrn
 Author URI: http://www.bit01.de
 Plugin URI: http://www.bit01.de/blog/lazy-retina/
-Version: 1.0
+Version: 1.0.1
 */
 
 defined('ABSPATH') OR exit;

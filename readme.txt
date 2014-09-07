@@ -13,7 +13,7 @@ Automatically loads normal or retina versions of images while scrolling.
 
 *Lazy Retina* boost your website performance and reduce the traffic because images outside of viewport (visible part of web page) won't be loaded until the user scrolls to them. This *lazy* technique works with jQuery or zepto.js.
 
-*Lazy Retina* includes by default:
+*Lazy Retina* loads by default:
 
 * thumbnails
 * images in posts
@@ -29,15 +29,13 @@ You've to [regenerate](http://wordpress.org/plugins/regenerate-thumbnails/) alre
 
 = Support in Themes =
 
-If you want to *lazy load* an image use the following code in your template:
+If you want to *lazy load* an image in themes please use the following code:
 
 `<?php echo lazy_retina_image( $image_id, $size, $attr ); ?>`
 
 = Settings =
 
-Under "Options" -> "Media" you can:
-
-* remove the default link to full image path
+Under "Options" -> "Media" you can remove the default link to full image path
 
 = Author =
 
@@ -68,6 +66,9 @@ The image size have to at least the double of original width and height.
 1. Image link settings
 
 == Changelog ==
+
+= 1.0.1 =
+* Fix some bugs
 
 = 1.0 =
 * First version appeared
